@@ -7,30 +7,33 @@ import {
   Container,
 } from '@mui/material';
 import styles from './Login.module.css';
-import axios from 'axios'; // Import Axios for HTTP requests
+import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { setUserToken } from '../store/authSlice';
 import { useNavigate } from 'react-router-dom';
+import SignUpForm from './SignUpForm'; // Import the SignUpForm component
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const dispatch = useDispatch();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false); // State for controlling the SignUpForm visibility
 
   const handleLogin = async () => {
     try {
       // Make an HTTP POST request to your authentication endpoint
-    //   const response = await axios.post('http://localhost:3000/user/login', {
-    //     email,
-    //     password,
-    //   });
+      const response = await axios.post('http://localhost:3333/user/login', {
+        email,
+        password,
+      });
 
       // Assuming the server sends back a token upon successful login
-      const  token  = "response.data";
+      const { token } = response.data;
+
       // Set the token in the Redux store
-      dispatch(setUserToken( token));
+      dispatch(setUserToken(token));
       navigate('/dailyGoals');
       // Redirect the user to the dashboard or another page
       // You can use the useHistory hook or <Redirect> from react-router-dom
@@ -71,8 +74,18 @@ const LoginPage = () => {
           >
             Login
           </Button>
+          <Button
+            type="button"
+            variant="outlined"
+            color="primary"
+            className={styles.button}
+            onClick={() => setIsSignUpOpen(true)} // Open the SignUpForm
+          >
+            Sign Up
+          </Button>
         </form>
       </Paper>
+      {isSignUpOpen && <SignUpForm onClose={() => setIsSignUpOpen(false)} />}
     </Container>
   );
 };
