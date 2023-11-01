@@ -12,7 +12,7 @@ function App() {
   const isAuthenticated = useSelector(
     (state) => state.auth.token
   );
-  alert(isAuthenticated)
+
 
   return (
     <Router>

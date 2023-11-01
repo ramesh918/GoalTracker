@@ -1,56 +1,89 @@
-import React from 'react';
+import React,{useState, useEffect} from 'react';
 import DailyGoalsList from './DailyGoalsList'
+import { useSelector } from "react-redux";
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import axios from "axios"
+import AddDailyGoalsForm from "./AddDailyGoals"
+import ChartComponent from './ChartComponent';
 const DailyGoalsPage = () => {
+  const isAuthenticated = useSelector((state) => state.auth.token);
+  const [data, setData] = useState([]);
+  const [isFormOpen, setFormOpen] = useState(false);
+  const [isChartOpen, setChartOpen] = useState(false);
+  const handleOpenChart = () => {
+    setChartOpen(true);
+  };
+
+  const handleCloseChart = () => {
+    setChartOpen(false);
+  };
 
 
-  const goals = [
-    {
-      "_id": "cda3eeab-bf20-4e52-bace-83eabe35ee9a",
-      "dayOfEntry": "28-10-2023",
-      "todoList": ["node.js", "reading book", "react", "network"],
-      "checkTodoList": [true, false, true, true],
-      "userId": "550e8400-e29b-41d4-a716-446655440001",
-      "productivity": 75
-    },
-    {
-      "_id": "cced166c-6e3a-43ab-9e61-5f5649cf71e3",
-      "dayOfEntry": "29-10-2023",
-      "todoList": ["node.js", "reading book", "react", "network"],
-      "checkTodoList": [true, true, true, true],
-      "userId": "550e8400-e29b-41d4-a716-446655440001",
-      "productivity": 100
-    },
-    {
-      "_id": "83a8228b-38a9-4e64-a678-6c7d5090cb8c",
-      "dayOfEntry": "30-10-2023",
-      "todoList": ["node.js", "reading book", "react", "network"],
-      "checkTodoList": [true, false, false, true],
-      "userId": "550e8400-e29b-41d4-a716-446655440001",
-      "productivity": 50
-    },
-    {
-      "_id": "9d57f9c2-50c7-4594-870e-74673e768f1c",
-      "dayOfEntry": "31-10-2023",
-      "todoList": ["node.js", "reading book", "react", "network"],
-      "checkTodoList": [true, false, false, false],
-      "userId": "550e8400-e29b-41d4-a716-446655440001",
-      "productivity": 25
-    },
-    {
-      "_id": "17b01088-5e9a-4d3f-98b9-ff7bbab1c27d",
-      "dayOfEntry": "01-11-2023",
-      "todoList": ["node.js", "reading book", "react", "network"],
-      "checkTodoList": [true, false, true, true],
-      "userId": "550e8400-e29b-41d4-a716-446655440001",
-      "productivity": 75
-    }
-  ]
+  const getProductivityData = async (startDate, endDate) => {
+    const apiUrl = "http://localhost:3333/daily-goals/records";
+
+    // Make a GET request to fetch data from the API with headers
+    axios
+      .get(apiUrl, {
+        params: {
+          startDate: startDate,
+          endDate: endDate,
+        },
+        headers: {
+          Authorization: isAuthenticated,
+        },
+      })
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  };
+
+  const handleOpenForm = () => {
+    setFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setFormOpen(false);
+  };
+  const handleAddProductivity = (data) => {
+    // Handle the added productivity data here (e.g., update the list)
+    console.log("Added productivity data:", data);
+
+    // Close the form modal
+    setFormOpen(false);
+  };
+
   
   return (
     <div>
       <h2>DailyGoalsPage</h2>
-      <DailyGoalsList goals={goals} />,
-      {/* Add your productivity-related components and content here */}
+      <Button variant="outlined" onClick={handleOpenForm}>
+        Add Productivity
+      </Button>
+      <Button variant="outlined" onClick={handleOpenChart}>
+        Show Chart
+      </Button>
+      <DailyGoalsList goals={data} getProductivityData={getProductivityData}/>,
+      <AddDailyGoalsForm
+        open={isFormOpen}
+        onClose={handleCloseForm}
+        onAddDailyGoals={handleAddProductivity}
+        getProductivityData={getProductivityData}
+      />
+          <Dialog open={isChartOpen} onClose={handleCloseChart} fullWidth maxWidth="md">
+        <DialogTitle>Productivity Chart</DialogTitle>
+        <DialogContent>
+          <ChartComponent data={data} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseChart} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
