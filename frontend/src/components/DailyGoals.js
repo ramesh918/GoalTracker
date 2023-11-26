@@ -63,10 +63,11 @@ const DailyGoalsPage = () => {
       <Button variant="outlined" onClick={handleOpenForm}>
         Add Productivity
       </Button>
-      <Button variant="outlined" onClick={handleOpenChart}>
+      <Button variant="outlined" onClick={handleOpenChart} style={{ marginLeft: '10px' }}>
         Show Chart
       </Button>
-      <DailyGoalsList goals={data} getProductivityData={getProductivityData}/>,
+      <div style={{ margin: '10px 0' }} />
+      <DailyGoalsList goals={data} getProductivityData={getProductivityData}/>
       <AddDailyGoalsForm
         open={isFormOpen}
         onClose={handleCloseForm}

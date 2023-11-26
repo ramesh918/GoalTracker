@@ -23,6 +23,7 @@ import axios from "axios"
 import styles from "./DailyGoalList.module.css"
 
 import UpdateDailyGoalsForm from "./UpdateDailyGoalsForm"
+import SuccessModal from './SuccessModel';
 
 const DailyGoalsList = ({ goals, getProductivityData }) => {
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
@@ -31,7 +32,7 @@ const DailyGoalsList = ({ goals, getProductivityData }) => {
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [updateData, setUpdateData] = useState({})
 
-  
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
 
 
   const getData = async () => {
@@ -43,6 +44,11 @@ const DailyGoalsList = ({ goals, getProductivityData }) => {
     const endDateString = endDate.toISOString().split("T")[0];
     await getProductivityData(startDateString, endDateString);
   };
+
+  const openSuccessModal = () => {
+    setSuccessModalOpen(true);
+  };
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,7 +79,7 @@ const DailyGoalsList = ({ goals, getProductivityData }) => {
 
       if (response.status === 200) {
         getData();
-        alert("Record deleted successfully");
+        openSuccessModal()
       } else {
         console.error("Error deleting record. Status code: " + response.status);
       }
@@ -91,15 +97,20 @@ const DailyGoalsList = ({ goals, getProductivityData }) => {
 
   return (
     <>
+    <SuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        message={`Daily Goal Deleted Successfully!!!`}
+      />
     <TableContainer component={Paper} style={{ maxHeight: '500px' }}>
       <Table>
         <TableHead className={styles.tableHeader}>
           <TableRow>
-            <TableCell>Day of Entry</TableCell>
-            <TableCell>To-Do List</TableCell>
-            <TableCell>Check To-Do List</TableCell>
-            <TableCell>Productivity</TableCell>
-            <TableCell>Actions</TableCell>
+            <TableCell className={styles.tableHeader}>Day of Entry</TableCell>
+            <TableCell className={styles.tableHeader}>To-Do List</TableCell>
+            <TableCell className={styles.tableHeader}>Check To-Do List</TableCell>
+            <TableCell className={styles.tableHeader}>Productivity</TableCell>
+            <TableCell className={styles.tableHeader}>Actions</TableCell>
           </TableRow>
         </TableHead>
 
@@ -121,7 +132,7 @@ const DailyGoalsList = ({ goals, getProductivityData }) => {
                     ))}
                   </ul>
                 </TableCell>
-                <TableCell>{goal.productivity}%</TableCell>
+                <TableCell>{(goal.productivity).toFixed(2)}%</TableCell>
                 <TableCell>
                         <Tooltip title="Edit">
                           <IconButton

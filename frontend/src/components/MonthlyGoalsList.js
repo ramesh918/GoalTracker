@@ -18,25 +18,36 @@ import {
 import { useSelector } from "react-redux";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ArticleIcon from '@mui/icons-material/Article';
 import axios from "axios"
 import styles from "./MonthlyGoalList.module.css"
 
-import UpdateMonthlyGoalsForm from "./UpdateMonthlyGoalsForm" // You'll need to create this form component
+
+import UpdateOnMonthlyGoalForm from "./UpdateOnMonthlyGoalForm"
+import ListOfUpdateOnMonthlyGoal from "./ListOfUpdateOnMonthlyGoal"
 
 const MonthlyGoalsList = ({ goals, getMonthlyGoalsData }) => {
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const isAuthenticated = useSelector((state) => state.auth.token);
   const [selectedItemId, setSelectedItemId] = useState(null);
+  const [selectedItem, setSelectedItem] = useState({});
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const [isDetailedFormOpen, setIsDetailedFormOpen] = useState(false);
   const [updateData, setUpdateData] = useState({});
 
   // Add any additional state or logic specific to monthly goals here
 
   const handleEditClick = (item) => {
     setSelectedItemId(item._id);
+    setSelectedItem(item)
     setIsEditFormOpen(true);
     setUpdateData(item);
   };
+
+  const handleDetailsClick = (id)=>{
+    setIsDetailedFormOpen(true)
+    setSelectedItemId(id)
+  }
 
   const handleDeleteClick = (id) => {
     setSelectedItemId(id);
@@ -77,12 +88,12 @@ const MonthlyGoalsList = ({ goals, getMonthlyGoalsData }) => {
         <Table>
           <TableHead className={styles.tableHeader}>
             <TableRow>
-              <TableCell>Goal</TableCell>
-              <TableCell>Goal Type</TableCell>
-              <TableCell>Start Date</TableCell>
-              <TableCell>Target Date</TableCell>
-              <TableCell>Completion</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell className={styles.tableHeader}>Goal</TableCell>
+              <TableCell className={styles.tableHeader}>Goal Type</TableCell>
+              <TableCell className={styles.tableHeader}>Start Date</TableCell>
+              <TableCell className={styles.tableHeader}>Target Date</TableCell>
+              <TableCell className={styles.tableHeader}>Completion</TableCell>
+              <TableCell className={styles.tableHeader}>Actions</TableCell>
             </TableRow>
           </TableHead>
 
@@ -95,6 +106,19 @@ const MonthlyGoalsList = ({ goals, getMonthlyGoalsData }) => {
                 <TableCell>{goal.targetDate}</TableCell>
                 <TableCell>{goal.completion}%</TableCell>
                 <TableCell>
+                    
+
+
+                    <Tooltip title="GoalDetails">
+                    <IconButton
+                      aria-label="GoalDetails"
+                      onClick={() => handleDetailsClick(goal._id)}
+                      color="GoalDetails"
+                    >
+                      <ArticleIcon />
+                    </IconButton>
+                  </Tooltip>
+
                   <Tooltip title="Edit">
                     <IconButton
                       aria-label="edit"
@@ -104,10 +128,12 @@ const MonthlyGoalsList = ({ goals, getMonthlyGoalsData }) => {
                       <EditIcon />
                     </IconButton>
                   </Tooltip>
+
+
                   <Tooltip title="Delete">
                     <IconButton
                       aria-label="delete"
-                      onClick={() => handleDeleteClick(goal._id)}
+                      onClick={() => handleDeleteClick(goal)}
                       color="secondary"
                     >
                       <DeleteIcon />
@@ -134,14 +160,23 @@ const MonthlyGoalsList = ({ goals, getMonthlyGoalsData }) => {
           </Button>
         </DialogActions>
       </Dialog>
-
       {isEditFormOpen && (
-        <UpdateMonthlyGoalsForm
+        <UpdateOnMonthlyGoalForm
           open={isEditFormOpen}
           onClose={() => setIsEditFormOpen(false)}
-          goalData={updateData}
+          goal={selectedItem}
+          getMonthlyGoalsData = {getMonthlyGoalsData}
         />
       )}
+      {
+        isDetailedFormOpen && (
+          <ListOfUpdateOnMonthlyGoal
+          open={isDetailedFormOpen}
+          onClose={() => setIsDetailedFormOpen(false)}
+          goal_id={selectedItemId}
+          />
+        )
+      }
     </>
   );
 };
